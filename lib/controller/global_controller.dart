@@ -3,28 +3,42 @@ import 'package:abahaoya/utils/api_url.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class GlobalController extends GetxController {
   final RxBool _isLoading = true.obs;
   final RxDouble _latitude = 0.0.obs;
   final RxDouble _longitude = 0.0.obs;
   late RxString _temparatue = ''.obs;
-  late RxString _humidity = ''.obs;
+  late double _humidity = 0.0;
   late RxString _clouds = ''.obs;
   late RxString _wind= ''.obs;
   late RxString _windDirection= ''.obs;
-  late RxString _icon= ''.obs;
+  late RxString _icon= '01d'.obs;
+  late RxString _main= ''.obs;
+  late RxString _feelsLike= ''.obs;
+  late RxString _pressure= ''.obs;
+  late RxString _visibility= ''.obs;
+  late RxString _sunriseTime= ''.obs;
+  late RxString _sunsetTime= ''.obs;
+  final timeFormat = DateFormat('h:mm a');
 
 
   RxBool checkLoading() => _isLoading;
   RxDouble getLatitude() => _latitude;
   RxDouble getLongitude() => _longitude;
   RxString getTemp() => _temparatue;
-  RxString getHumidity() => _humidity;
+  double getHumidity() => _humidity;
   RxString getClouds() => _clouds;
   RxString getWind() => _wind;
   RxString getwindDirection() => _windDirection;
   RxString getIcon() => _icon;
+  RxString getMain() => _main;
+  RxString getFeelsLike() => _feelsLike;
+  RxString getPressure() => _pressure;
+  RxString getVisibility() => _visibility;
+  RxString getSunriseTime() => _sunriseTime;
+  RxString getSunsetTime() => _sunsetTime;
 
 
 
@@ -40,22 +54,37 @@ class GlobalController extends GetxController {
     print(apiURL);
     if (response.statusCode == 200) {
       var decoded = json.decode(response.body);
-      // Accessing the "main" object and getting the "temp" value
       double temp = decoded['main']['temp'];
       _temparatue.value = (temp - 273.15).round().toString();
-      _humidity.value = decoded['main']['humidity'].toString();
+      double temp2 = decoded['main']['feels_like'];
+      _feelsLike.value = (temp2 - 273.15).round().toString();
+      _humidity = decoded['main']['humidity'].toDouble();
       _clouds.value = decoded['clouds']['all'].toString();
-      _wind.value = decoded['wind']['speed'].toString();
-       double WindDirection = decoded['wind']['speed'];
+      double temp3= decoded['wind']['speed'];
+      _wind.value = (temp3 * 3.6).round().toString(); // Convert to km/h
+       int WindDirection = decoded['wind']['deg'];
       _windDirection.value = getWindDirection(WindDirection);
       _icon.value = decoded['weather'][0]['icon'];
+      _main.value = decoded['weather'][0]['main'];
+      _pressure.value = decoded['main']['pressure'].toString();
+
+      int sunriseTimestamp = decoded['sys']['sunrise'];
+      int sunsetTimestamp = decoded['sys']['sunset'];
+      DateTime sunriseTime = DateTime.fromMillisecondsSinceEpoch(sunriseTimestamp * 1000, isUtc: true);
+      DateTime sunsetTime = DateTime.fromMillisecondsSinceEpoch(sunsetTimestamp * 1000, isUtc: true);
+      DateTime localSunriseTime = sunriseTime.toLocal();
+      DateTime localSunsetTime = sunsetTime.toLocal();
+      _sunriseTime.value = timeFormat.format(localSunriseTime).toString();
+      _sunsetTime.value = timeFormat.format(localSunsetTime).toString();
+      int visibilityInMeters = decoded['visibility'];
+      _visibility.value = (visibilityInMeters / 1000.0).toString();
 
     } else {
       throw Exception('Failed to load weather data. Status code: ${response.statusCode}');
     }
   }
 
-  String getWindDirection(double degree) {
+  String getWindDirection(int degree) {
     if (degree >= 337.5 || degree < 22.5) {
       return 'North';
     } else if (degree >= 22.5 && degree < 67.5) {

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:abahaoya/controller/global_controller.dart';
 import 'package:abahaoya/utils/custom_colors.dart';
 import 'package:abahaoya/widgets/header_widget.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -45,9 +46,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Expanded(
-                          child: Image.asset("assets/weather/${globalController.getIcon()}.png",
-                            height: 80,
-                            width: 10,
+                          child: Obx(()=>Image.asset("assets/weather/${globalController.getIcon()}.png",
+                              height: 80,
+                              width: 10,
+                            ),
                           ),
                         ),
                         Container(
@@ -55,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: 1,
                           color: CustomColors.dividerLine,
                         ),
+                        SizedBox(width: 50,),
                         Expanded(
                           child: RichText(
                             text: TextSpan(children: [
@@ -79,7 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-
+                    Padding(
+                        padding: EdgeInsets.only(right: MediaQuery.of(context).size.width -280),
+                        child: Text('${globalController.getMain()}',style: TextStyle(fontWeight: FontWeight.bold),textAlign: TextAlign.right,)),
                     const SizedBox(
                       height: 20,
                     ),
@@ -145,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 20,
                               width: 60,
                               child: Text(
-                                "${globalController.getHumidity()}%",
+                                "${globalController.getHumidity().toString()}%",
                                 style: const TextStyle(fontSize: 12),
                                 textAlign: TextAlign.center,
                               ),
@@ -164,6 +169,161 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(
                       height: 10,
                     ),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            height: 130,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                              color: CustomColors.cardColor,
+                            ),
+                            margin: EdgeInsets.only(left: 20),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('SUNRISE'),
+                                  SizedBox(height: 5,),
+                                  Text('${globalController.getSunriseTime()}',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+                                  SizedBox(height: 10,),
+                                  Text('SUNSET'),
+                                  SizedBox(height: 5,),
+                                  Text('${globalController.getSunsetTime()}',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 30,),
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            height: 130,
+                            margin: EdgeInsets.only(right: 20),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              color: CustomColors.cardColor,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('VISIBILITY'),
+                                  SizedBox(height: 5,),
+                                  Text('${globalController.getVisibility()} km',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      height: 1,
+                      color: CustomColors.dividerLine,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Column(
+                      children: [
+                        Container(
+                          margin:
+                          const EdgeInsets.only(top: 1, left: 20, right: 20, bottom: 20),
+                          child: const Text(
+                            "Comfort Level",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 180,
+                          child: Column(
+                            children: [
+                              Center(
+                                child: SleekCircularSlider(
+                                    min: 0,
+                                    max: 100,
+                                    initialValue: globalController.getHumidity(),
+                                    appearance: CircularSliderAppearance(
+                                        customWidths: CustomSliderWidths(
+                                            handlerSize: 0, trackWidth: 12, progressBarWidth: 12),
+                                        infoProperties: InfoProperties(
+                                            bottomLabelText: "Humidity",
+                                            bottomLabelStyle: const TextStyle(
+                                                letterSpacing: 0.1, fontSize: 14, height: 1.5)),
+                                        animationEnabled: true,
+                                        size: 140,
+                                        customColors: CustomSliderColors(
+                                            hideShadow: true,
+                                            trackColor:
+                                            CustomColors.firstGradientColor.withAlpha(100),
+                                            progressBarColors: [
+                                              CustomColors.firstGradientColor,
+                                              CustomColors.secondGradientColor
+                                            ])),
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  RichText(
+                                    text: TextSpan(children: [
+                                      const TextSpan(
+                                          text: "Feels Like: ",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              height: 0.8,
+                                              color: CustomColors.textColorBlack,
+                                              fontWeight: FontWeight.w400)),
+                                      TextSpan(
+                                          text: "${globalController.getFeelsLike()}°",
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              height: 0.8,
+                                              color: CustomColors.textColorBlack,
+                                              fontWeight: FontWeight.w400))
+                                    ]),
+                                  ),
+                                  Container(
+                                    height: 25,
+                                    margin: const EdgeInsets.only(left: 40, right: 40),
+                                    width: 1,
+                                    color: CustomColors.dividerLine,
+                                  ),
+                                  RichText(
+                                    text: TextSpan(children: [
+                                      const TextSpan(
+                                          text: "Pressure: ",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              height: 0.8,
+                                              color: CustomColors.textColorBlack,
+                                              fontWeight: FontWeight.w400)),
+                                      TextSpan(
+                                          text: "${globalController.getPressure()} hPa",
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              height: 0.8,
+                                              color: CustomColors.textColorBlack,
+                                              fontWeight: FontWeight.w400))
+                                    ]),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        )
+            ],
+          )
                   ],
                 ),
               )),
